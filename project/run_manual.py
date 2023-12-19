@@ -2,7 +2,11 @@
 Be sure you have minitorch installed in you Virtual Env.
 >>> pip install -Ue .
 """
+
 import random
+import sys
+import os
+sys.path.insert(0, os.path.join(os.getcwd(), '../'))
 
 import minitorch
 

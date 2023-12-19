@@ -6,6 +6,11 @@ Be sure you have the extra requirements installed.
 
 import networkx as nx
 
+import sys
+import os
+sys.path.insert(0, os.path.join(os.getcwd(), '../'))
+#print(os.getcwd())
+
 import minitorch
 
 

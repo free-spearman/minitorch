@@ -4,6 +4,11 @@ import plotly.graph_objects as go
 import streamlit as st
 from interface.streamlit_utils import render_function
 
+import sys
+import os
+sys.path.insert(0, os.path.join(os.getcwd(), '../'))
+#print(os.getcwd())
+
 import minitorch
 from minitorch import MathTest, MathTestVariable
 

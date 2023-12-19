@@ -1,5 +1,6 @@
+from collections import defaultdict
 from dataclasses import dataclass
-from typing import Any, Iterable, List, Tuple
+from typing import Any, Iterable, Tuple
 
 from typing_extensions import Protocol
 
@@ -22,10 +23,9 @@ def central_difference(f: Any, *vals: Any, arg: int = 0, epsilon: float = 1e-6) 
     Returns:
         An approximation of $f'_i(x_0, \ldots, x_{n-1})$
     """
-    raise NotImplementedError("Need to include this file from past assignment.")
-
-
-variable_count = 1
+    left = tuple( vals[i] if i != arg else vals[i] - epsilon for i in range(len(vals)) )
+    right = tuple( vals[i] if i != arg else vals[i] + epsilon for i in range(len(vals)) )
+    return (f(*right) - f(*left))/(2*epsilon)
 
 
 class Variable(Protocol):
@@ -60,7 +60,20 @@ def topological_sort(variable: Variable) -> Iterable[Variable]:
     Returns:
         Non-constant Variables in topological order starting from the right.
     """
-    raise NotImplementedError("Need to include this file from past assignment.")
+    sorted_graph = []
+    visited = set()
+
+    def dfs(v: Variable) -> None:
+        if v.is_constant() or v.unique_id in visited:
+            return
+        for p in v.parents:
+            dfs(p)
+        sorted_graph.append(v)
+        visited.add(v.unique_id)
+
+    dfs(variable)
+
+    return sorted_graph[::-1]
 
 
 def backpropagate(variable: Variable, deriv: Any) -> None:
@@ -74,7 +87,17 @@ def backpropagate(variable: Variable, deriv: Any) -> None:
 
     No return. Should write to its results to the derivative values of each leaf through `accumulate_derivative`.
     """
-    raise NotImplementedError("Need to include this file from past assignment.")
+    queue = topological_sort(variable)
+    derivatives = defaultdict(int)
+    derivatives[variable.unique_id] = deriv
+
+    for var in queue:
+        var_deriv = derivatives[var.unique_id]
+        if var.is_leaf():
+            var.accumulate_derivative(var_deriv)
+            continue
+        for back_var, back_deriv in var.chain_rule(var_deriv):
+            derivatives[back_var.unique_id] += back_deriv
 
 
 @dataclass

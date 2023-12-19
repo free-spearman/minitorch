@@ -169,6 +169,8 @@ class SimpleOps(TensorOps):
         f = tensor_zip(fn)
 
         def ret(a: "Tensor", b: "Tensor") -> "Tensor":
+            #print('ret(a: "Tensor", b: "Tensor") -> "Tensor"')
+            #print(a,b)
             if a.shape != b.shape:
                 c_shape = shape_broadcast(a.shape, b.shape)
             else:
@@ -269,9 +271,19 @@ def tensor_map(fn: Callable[[float], float]) -> Any:
         in_strides: Strides,
     ) -> None:
         # TODO: Implement for Task 2.3.
-        raise NotImplementedError("Need to implement for Task 2.3")
+        in_index = np.zeros(len(in_shape), dtype=int)
+        out_index = np.zeros(len(out_shape), dtype=int)
+        
+        for i in range(len(out)):
+            to_index(i, out_shape, out_index)
+            broadcast_index(out_index, out_shape, in_shape, in_index)
+
+            x = in_storage[index_to_position(in_index, in_strides)]
+            index = index_to_position(out_index, out_strides)
+            out[index] = fn(x)
 
     return _map
+
 
 
 def tensor_zip(fn: Callable[[float, float], float]) -> Any:
@@ -319,7 +331,22 @@ def tensor_zip(fn: Callable[[float, float], float]) -> Any:
         b_strides: Strides,
     ) -> None:
         # TODO: Implement for Task 2.3.
-        raise NotImplementedError("Need to implement for Task 2.3")
+        out_index = np.zeros(len(out_shape), dtype=int)
+        a_in = np.zeros(len(a_shape), dtype=int)
+        b_in = np.zeros(len(b_shape), dtype=int)
+
+        for i in range(len(out)):
+            to_index(i, out_shape, out_index)
+            index = index_to_position(out_index, out_strides)
+
+            broadcast_index(out_index, out_shape, a_shape, a_in)
+            a = a_storage[index_to_position(a_in, a_strides)]
+
+            broadcast_index(out_index, out_shape, b_shape, b_in)
+            b = b_storage[index_to_position(b_in, b_strides)]
+
+            out[index] = fn(a, b)
+        #raise NotImplementedError("Need to implement for Task 2.3")
 
     return _zip
 
@@ -355,7 +382,19 @@ def tensor_reduce(fn: Callable[[float, float], float]) -> Any:
         reduce_dim: int,
     ) -> None:
         # TODO: Implement for Task 2.3.
-        raise NotImplementedError("Need to implement for Task 2.3")
+        out_index = np.zeros(len(a_shape), dtype=int)
+        for i in range(len(out)):
+            to_index(i, out_shape, out_index)
+            index = index_to_position(out_index, out_strides)
+
+            for j in range(a_shape[reduce_dim]):
+                a_index = out_index.copy()
+                a_index[reduce_dim] = j
+
+                out[index] = fn(
+                    a_storage[index_to_position(a_index, a_strides)], out[index]
+                )
+        #raise NotImplementedError("Need to implement for Task 2.3")
 
     return _reduce
 

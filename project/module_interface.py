@@ -2,6 +2,11 @@ import networkx as nx
 import streamlit as st
 from streamlit_ace import st_ace
 
+import sys
+import os
+sys.path.insert(0, os.path.join(os.getcwd(), '../'))
+#print(os.getcwd())
+
 import minitorch
 
 MyModule = None
